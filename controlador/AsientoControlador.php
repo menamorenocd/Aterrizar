@@ -8,25 +8,8 @@ class AsientoControlador {
         $this->modelo = new AsientoModelo();
     }
 
-    /**
-     * 🔹 Listar asientos de un vuelo
-     */
     public function obtenerAsientosPorVuelo($vueloId) {
         return $this->modelo->obtenerAsientosPorVuelo($vueloId);
-    }
-
-    /**
-     * 🔹 Verificar si asiento está disponible
-     */
-    public function verificarDisponible($vueloId, $codigoAsiento) {
-        return $this->modelo->verificarDisponible($vueloId, $codigoAsiento);
-    }
-
-    /**
-     * 🔹 Ocupar asiento
-     */
-    public function ocuparAsiento($vueloId, $codigoAsiento) {
-        return $this->modelo->ocuparAsiento($vueloId, $codigoAsiento);
     }
 }
 ?>

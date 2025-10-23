@@ -93,9 +93,9 @@ footer {
   <div class="nav-right">
     <?php if (isset($_SESSION['nombre_usuario'])): ?>
       <span>👤 <?= htmlspecialchars($_SESSION['nombre_usuario']) ?></span>
-      <a href="logout.php">Cerrar sesión</a>
+      <a href="../vista/index.php">Cerrar sesión</a>
     <?php else: ?>
-      <a href="login.php">Iniciar sesión</a>
+      <a href="../vista/login.php">Iniciar sesión</a>
     <?php endif; ?>
   </div>
 </nav>
