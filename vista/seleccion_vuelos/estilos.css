@@ -1,0 +1,38 @@
+body {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+.buscador-contenedor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.buscador-caja {
+  background: #fff;
+  padding: 35px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  width: 90%;
+  max-width: 900px;
+}
+.btn-principal {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+}
+.btn-principal:hover {
+  background: #1d4ed8;
+}
+.card-vuelo {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all .2s ease;
+}
+.card-vuelo:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
