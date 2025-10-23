@@ -85,7 +85,7 @@ a.delete:hover {
         <a href="ciudades.php"> Ciudades</a>
         <a href="vuelos.php"> Vuelos</a>
         <a href="asientos.php"> Asientos</a>
-        <a href="usuarios.php"> Usuarios</a>
+        <!-- <a href="usuarios.php"> Usuarios</a> -->
         <a href="compras.php"> Compras</a>
     </div>
     <div>

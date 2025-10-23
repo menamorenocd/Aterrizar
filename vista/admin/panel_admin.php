@@ -9,7 +9,7 @@
     <li><a href="ciudades.php">Gestionar Ciudades</a></li>
     <li><a href="vuelos.php">Gestionar Vuelos</a></li>
     <li><a href="asientos.php">Gestionar Asientos</a></li>
-    <li><a href="usuarios.php">Gestionar Usuarios</a></li>
+    <!-- <li><a href="usuarios.php">Gestionar Usuarios</a></li> -->
     <li><a href="compras.php">Gestionar Compras</a></li>
 </ul>
 

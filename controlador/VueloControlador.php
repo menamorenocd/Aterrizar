@@ -8,14 +8,18 @@ class VueloControlador {
         $this->modelo = new VueloModelo();
     }
 
-    // Lista todos los vuelos
+    /** =============================
+     *  Listar todos los vuelos
+     *  ============================= */
     public function listarVuelos() {
         return $this->modelo->listarVuelos();
     }
 
-    // Obtiene un vuelo específico
-    public function obtenerVuelo($id) {
-        return $this->modelo->obtenerVuelo($id);
+    /** =============================
+     *  Obtener vuelo por ID
+     *  ============================= */
+    public function obtenerVueloPorId($idVuelo) {
+        return $this->modelo->obtenerVueloPorId($idVuelo);
     }
 }
 ?>

@@ -2,13 +2,20 @@
 include 'header.php';
 require_once __DIR__ . '../../controlador/VueloControlador.php';
 
+// ===============================
+// Conexión base de datos
+// ===============================
 $conexion = new mysqli("localhost", "root", "", "sistema_vuelos");
 $conexion->set_charset("utf8mb4");
 
-// Obtener ciudades
+// ===============================
+// Obtener ciudades para los select
+// ===============================
 $ciudades = $conexion->query("SELECT * FROM tb_ciudad ORDER BY nombre_ciudad ASC");
 
+// ===============================
 // Variables del formulario
+// ===============================
 $tipo_vuelo = $_GET['tipo_vuelo'] ?? 'ida';
 $origen = $_GET['origen'] ?? '';
 $destino = $_GET['destino'] ?? '';
@@ -18,11 +25,14 @@ $fecha_regreso = $_GET['fecha_regreso'] ?? '';
 $resultados_ida = [];
 $resultados_regreso = [];
 
-// Si se ha realizado búsqueda
+// ===============================
+// Búsqueda de vuelos
+// ===============================
 if ($origen && $destino && $fecha_ida) {
-    // Ida
+    // ---- Vuelos de ida ----
     $rangoInicio = date('Y-m-d', strtotime($fecha_ida . ' -2 days'));
     $rangoFin = date('Y-m-d', strtotime($fecha_ida . ' +2 days'));
+
     $stmt = $conexion->prepare("
         SELECT v.*, c1.nombre_ciudad AS origen, c2.nombre_ciudad AS destino,
                m.nombre_modelo_avion,
@@ -41,7 +51,7 @@ if ($origen && $destino && $fecha_ida) {
     $resultados_ida = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
-    // Regreso (solo si aplica)
+    // ---- Vuelos de regreso ----
     if ($tipo_vuelo === 'ida_y_regreso' && $fecha_regreso) {
         $rangoInicioReg = date('Y-m-d', strtotime($fecha_regreso . ' -2 days'));
         $rangoFinReg = date('Y-m-d', strtotime($fecha_regreso . ' +2 days'));
@@ -91,11 +101,15 @@ table {
 th,td {padding:12px;text-align:center;border-bottom:1px solid #eee;}
 th {background:#007bff;color:white;}
 tr:hover {background:#f9f9f9;}
-a.btn-ver {background:#17a2b8;color:white;padding:7px 10px;border-radius:6px;text-decoration:none;}
-a.btn-ver:hover {background:#138496;}
-a.btn-compra {background:#28a745;color:white;padding:7px 10px;border-radius:6px;text-decoration:none;}
-a.btn-compra:hover {background:#218838;}
 fieldset {border:none;text-align:center;margin-top:10px;}
+.compra-multiple {text-align:center;margin-top:25px;}
+.btn-compra {
+  background:#28a745;color:white;padding:10px 20px;border:none;border-radius:8px;
+  text-decoration:none;font-size:16px;cursor:pointer;
+}
+.btn-compra:hover {background:#218838;}
+a.btn-ver {background:#17a2b8;color:white;padding:8px 14px;border-radius:6px;text-decoration:none;}
+a.btn-ver:hover {background:#138496;}
 </style>
 
 <script>
@@ -124,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 </head>
+
 <body>
 <div class="container">
   <h2>✈️ Sistema de vuelos Aterriza</h2>
@@ -162,50 +177,21 @@ document.addEventListener("DOMContentLoaded", () => {
   </form>
 
   <?php if ($origen && $destino && $fecha_ida): ?>
-    <h3>✈️ Resultados de vuelo de ida</h3>
-    <?php if (empty($resultados_ida)): ?>
-      <p style="text-align:center;color:#777;">No se encontraron vuelos de ida.</p>
-    <?php else: ?>
-      <table>
-        <thead>
-          <tr>
-            <th>Código</th><th>Origen</th><th>Destino</th><th>Fecha</th><th>Hora</th><th>Modelo</th><th>Disponibles</th><th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach($resultados_ida as $v): ?>
-          <tr>
-            <td><?= htmlspecialchars($v['codigo_vuelo']) ?></td>
-            <td><?= htmlspecialchars($v['origen']) ?></td>
-            <td><?= htmlspecialchars($v['destino']) ?></td>
-            <td><?= htmlspecialchars($v['fecha_salida']) ?></td>
-            <td><?= htmlspecialchars($v['hora_salida']) ?></td>
-            <td><?= htmlspecialchars($v['nombre_modelo_avion']) ?></td>
-            <td><?= htmlspecialchars($v['disponibles']) ?></td>
-            <td>
-              <a class="btn-compra" href="compra_vuelo.php?vuelo=<?= $v['id_vuelo'] ?>">Comprar</a>
-              <a class="btn-ver" href="lista_vuelos.php">Ver más vuelos</a>
-            </td>
-          </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    <?php endif; ?>
-
-    <?php if ($tipo_vuelo === 'ida_y_regreso'): ?>
-      <h3>🔁 Resultados de vuelo de regreso</h3>
-      <?php if (empty($resultados_regreso)): ?>
-        <p style="text-align:center;color:#777;">No se encontraron vuelos de regreso.</p>
+    <form method="GET" action="compra_vuelo.php" id="form-compra">
+      <h3>✈️ Resultados de vuelo de ida</h3>
+      <?php if (empty($resultados_ida)): ?>
+        <p style="text-align:center;color:#777;">No se encontraron vuelos de ida.</p>
       <?php else: ?>
         <table>
           <thead>
             <tr>
-              <th>Código</th><th>Origen</th><th>Destino</th><th>Fecha</th><th>Hora</th><th>Modelo</th><th>Disponibles</th><th>Acciones</th>
+              <th></th><th>Código</th><th>Origen</th><th>Destino</th><th>Fecha</th><th>Hora</th><th>Modelo</th><th>Disponibles</th>
             </tr>
           </thead>
           <tbody>
-            <?php foreach($resultados_regreso as $v): ?>
+            <?php foreach($resultados_ida as $v): ?>
             <tr>
+              <td><input type="radio" name="vuelo_ida" value="<?= $v['id_vuelo'] ?>" required></td>
               <td><?= htmlspecialchars($v['codigo_vuelo']) ?></td>
               <td><?= htmlspecialchars($v['origen']) ?></td>
               <td><?= htmlspecialchars($v['destino']) ?></td>
@@ -213,16 +199,46 @@ document.addEventListener("DOMContentLoaded", () => {
               <td><?= htmlspecialchars($v['hora_salida']) ?></td>
               <td><?= htmlspecialchars($v['nombre_modelo_avion']) ?></td>
               <td><?= htmlspecialchars($v['disponibles']) ?></td>
-              <td>
-                <a class="btn-compra" href="compra_vuelo.php?vuelo=<?= $v['id_vuelo'] ?>">Comprar</a>
-                <a class="btn-ver" href="lista_vuelos.php">Ver más vuelos</a>
-              </td>
             </tr>
             <?php endforeach; ?>
           </tbody>
         </table>
       <?php endif; ?>
-    <?php endif; ?>
+
+      <?php if ($tipo_vuelo === 'ida_y_regreso'): ?>
+        <h3>🔁 Resultados de vuelo de regreso</h3>
+        <?php if (empty($resultados_regreso)): ?>
+          <p style="text-align:center;color:#777;">No se encontraron vuelos de regreso.</p>
+        <?php else: ?>
+          <table>
+            <thead>
+              <tr>
+                <th></th><th>Código</th><th>Origen</th><th>Destino</th><th>Fecha</th><th>Hora</th><th>Modelo</th><th>Disponibles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach($resultados_regreso as $v): ?>
+              <tr>
+                <td><input type="radio" name="vuelo_regreso" value="<?= $v['id_vuelo'] ?>"></td>
+                <td><?= htmlspecialchars($v['codigo_vuelo']) ?></td>
+                <td><?= htmlspecialchars($v['origen']) ?></td>
+                <td><?= htmlspecialchars($v['destino']) ?></td>
+                <td><?= htmlspecialchars($v['fecha_salida']) ?></td>
+                <td><?= htmlspecialchars($v['hora_salida']) ?></td>
+                <td><?= htmlspecialchars($v['nombre_modelo_avion']) ?></td>
+                <td><?= htmlspecialchars($v['disponibles']) ?></td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php endif; ?>
+      <?php endif; ?>
+
+      <div class="compra-multiple">
+        <button class="btn-compra" type="submit">Comprar vuelo<?= ($tipo_vuelo === 'ida_y_regreso') ? 's' : '' ?></button>
+        <a href="lista_vuelos.php" class="btn-ver">Ver más vuelos</a>
+      </div>
+    </form>
   <?php endif; ?>
 </div>
 

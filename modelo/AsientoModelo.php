@@ -2,39 +2,50 @@
 require_once __DIR__ . '/Conexion.php';
 
 class AsientoModelo {
-    private $conn;
+    private $conexion;
 
     public function __construct() {
-        $this->conn = (new Conexion())->conectar();
+        $this->conexion = (new Conexion())->conectar();
     }
 
-    // 🔹 Obtiene todos los asientos de un vuelo
+    /**
+     * 🔹 Obtener todos los asientos de un vuelo
+     */
     public function obtenerAsientosPorVuelo($vueloId) {
-        $stmt = $this->conn->prepare("SELECT * FROM tb_asiento_vuelo WHERE vuelo_id = ? ORDER BY fila, letra");
+        $sql = "SELECT codigo_asiento, estado 
+                FROM tb_asiento_vuelo 
+                WHERE vuelo_id = ? 
+                ORDER BY codigo_asiento ASC";
+        $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("i", $vueloId);
         $stmt->execute();
         $res = $stmt->get_result();
-        $asientos = $res->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        return $asientos;
+        return $res->fetch_all(MYSQLI_ASSOC);
     }
 
-    // 🔹 Contar compras hechas hoy por un usuario
-    public function contarComprasHoy($usuarioId, $vueloId) {
-        $stmt = $this->conn->prepare("SELECT COUNT(*) AS total FROM tb_asiento_vuelo WHERE usuario_id = ? AND vuelo_id = ? AND DATE(fecha_reserva) = CURDATE()");
-        $stmt->bind_param("ii", $usuarioId, $vueloId);
+    /**
+     * 🔹 Verificar si un asiento está disponible
+     */
+    public function verificarDisponible($vueloId, $codigoAsiento) {
+        $sql = "SELECT estado FROM tb_asiento_vuelo 
+                WHERE vuelo_id = ? AND codigo_asiento = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("is", $vueloId, $codigoAsiento);
         $stmt->execute();
-        $total = $stmt->get_result()->fetch_assoc()['total'];
-        $stmt->close();
-        return $total;
+        $res = $stmt->get_result()->fetch_assoc();
+        return isset($res['estado']) && $res['estado'] === 'Disponible';
     }
 
-    // 🔹 Marcar un asiento como pagado
-    public function marcarAsientoPagado($vueloId, $usuarioId, $codigo) {
-        $stmt = $this->conn->prepare("UPDATE tb_asiento_vuelo SET estado = 'Pagado', usuario_id = ?, fecha_reserva = NOW() WHERE vuelo_id = ? AND codigo_asiento = ? AND estado = 'Disponible'");
-        $stmt->bind_param("iis", $usuarioId, $vueloId, $codigo);
-        $stmt->execute();
-        $stmt->close();
+    /**
+     * 🔹 Marcar un asiento como ocupado
+     */
+    public function ocuparAsiento($vueloId, $codigoAsiento) {
+        $sql = "UPDATE tb_asiento_vuelo 
+                SET estado = 'Ocupado' 
+                WHERE vuelo_id = ? AND codigo_asiento = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("is", $vueloId, $codigoAsiento);
+        return $stmt->execute();
     }
 }
 ?>
