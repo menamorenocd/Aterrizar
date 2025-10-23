@@ -9,7 +9,7 @@ class UsuarioControlador {
     }
 
     /**
-     * Registrar usuario normal (por defecto con rol 'Usuario')
+     * Registrar usuario normal (rol por defecto 'Usuario')
      */
     public function registrar($nombre, $apellido1, $apellido2, $genero, $tipo_documeto, $numero_documento, $correo, $usuario, $password) {
         if ($this->modelo->registrar($nombre, $apellido1, $apellido2, $genero, $tipo_documeto, $numero_documento, $correo, $usuario, $password)) {
@@ -21,14 +21,13 @@ class UsuarioControlador {
     }
 
     /**
-     * Iniciar sesión
-     * Dependiendo del rol del usuario redirige a diferentes vistas
+     * Iniciar sesión y redirigir según rol
      */
     public function login($usuario, $password) {
         $user = $this->modelo->login($usuario, $password);
 
         if ($user) {
-            // Guardar los datos del usuario en sesión
+            // Guardar datos en sesión
             $_SESSION['usuario'] = [
                 'id' => $user['id_usuario'],
                 'nombre' => $user['nombre_usuario'],
@@ -36,7 +35,7 @@ class UsuarioControlador {
                 'login' => $user['usuario_login']
             ];
 
-            // Redirigir según el rol
+            // Redirigir según rol
             switch ($user['rol']) {
                 case 'Administrador':
                     header("Location: ../vista/admin/panel_admin.php");
@@ -52,6 +51,20 @@ class UsuarioControlador {
         } else {
             return "Usuario o contraseña incorrectos.";
         }
+    }
+
+    /**
+     * Obtener datos del perfil (usado en perfil.php)
+     */
+    public function obtenerPerfil($idUsuario) {
+        return $this->modelo->obtenerUsuarioPorId($idUsuario);
+    }
+
+    /**
+     * Actualizar perfil (nombre, correo, contraseña)
+     */
+    public function actualizarPerfil($idUsuario, $nombre, $correo, $password = null) {
+        return $this->modelo->actualizarPerfil($idUsuario, $nombre, $correo, $password);
     }
 
     /**
